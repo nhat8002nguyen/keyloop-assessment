@@ -1,0 +1,129 @@
+{
+  "info": {
+    "name": "Aggregate Service — Documents",
+    "description": "Tests DocumentsController: `GET …/v1/documents`, `GET …/v1/documents/:documentId/url` (Nest global prefix `api`).\n\n**Variable `aggregateApiBase`** (default `http://localhost:3000/api`) is used instead of `baseUrl` so an active Postman **environment** with an empty or unrelated `baseUrl` does not override these requests.\n\nOptional header `x-correlation-id`; the server also sets one if omitted.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "aggregateApiBase",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "sampleVin",
+      "value": "1HGBH41JXMN109186",
+      "type": "string"
+    },
+    {
+      "key": "documentId",
+      "value": "replace-with-real-document-id",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Search documents",
+      "description": "All URLs use `{{aggregateApiBase}}` (collection variable). Override it in this collection’s Variables tab if needed.",
+      "item": [
+        {
+          "name": "Search — minimal (VIN only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-correlation-id",
+                "value": "{{$guid}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{aggregateApiBase}}/v1/documents?vin={{sampleVin}}",
+            "description": "Defaults: page=1, pageSize=20, source=ALL."
+          },
+          "response": []
+        },
+        {
+          "name": "Search — pagination + ALL",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-correlation-id",
+                "value": "{{$guid}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{aggregateApiBase}}/v1/documents?vin={{sampleVin}}&page=1&pageSize=10&source=ALL"
+          },
+          "response": []
+        },
+        {
+          "name": "Search — source SALES only",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-correlation-id",
+                "value": "{{$guid}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{aggregateApiBase}}/v1/documents?vin={{sampleVin}}&source=SALES"
+          },
+          "response": []
+        },
+        {
+          "name": "Search — source SERVICE only",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-correlation-id",
+                "value": "{{$guid}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{aggregateApiBase}}/v1/documents?vin={{sampleVin}}&source=SERVICE"
+          },
+          "response": []
+        },
+        {
+          "name": "Search — with date range (ISO 8601)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-correlation-id",
+                "value": "{{$guid}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{aggregateApiBase}}/v1/documents?vin={{sampleVin}}&dateFrom=2024-01-01T00:00:00.000Z&dateTo=2025-12-31T23:59:59.999Z"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Document URL",
+      "item": [
+        {
+          "name": "Get document download URL",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-correlation-id",
+                "value": "{{$guid}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{aggregateApiBase}}/v1/documents/{{documentId}}/url",
+            "description": "Set `documentId` from a search response or your fixtures (not the placeholder `replace-with-real-document-id` if that id does not exist — expect 404 until you use a real id)."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+export const MESSAGE_QUEUE = "MESSAGE_QUEUE";
