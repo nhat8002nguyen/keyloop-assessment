@@ -2,7 +2,7 @@
 
 NestJS service that aggregates **Sales** and **Service** document APIs behind a single HTTP surface, with PostgreSQL config, Redis cache wiring, and Kafka for search events.
 
-This README focuses on **running everything locally** and **testing with Postman**. Section **13** summarizes the **high-level strategy** used when building this service with AI assistance.
+This README focuses on **running everything locally** and **testing with Postman**. Section **14** summarizes the **high-level strategy** used when building this service with AI assistance.
 
 ## Prerequisites
 
@@ -152,7 +152,46 @@ Expose Prometheus metrics from the app at **`GET /metrics`** (same names as in *
 
 To ship logs into Elasticsearch for Kibana, set **`LOG_TO_FILE=true`** in `.env`, restart the BFF (writes **`logs/aggregate.jsonl`**), then ensure Filebeat is running (`docker compose --profile observability up -d`). Create the **`logs`** directory if it does not exist.
 
-## 11. Useful scripts
+## 11. Spec tests (listing and running)
+
+From **`aggregate-service/`**, unit tests live next to source as **`*.spec.ts`** under **`src/`** (Jest **`testRegex`**: `.*\.spec\.ts$`). End-to-end tests are **`*.e2e-spec.ts`** under **`test/`**, run with a separate Jest config.
+
+**List all spec files**
+
+```bash
+# Unit specs (mirrors Jest discovery under src/)
+find src -name '*.spec.ts' | sort
+
+# E2E specs
+find test -name '*.e2e-spec.ts' | sort
+```
+
+Alternatively, with **ripgrep** (files only):
+
+```bash
+rg --files -g '*.spec.ts' src | sort
+rg --files -g '*.e2e-spec.ts' test | sort
+```
+
+**Run tests**
+
+| Command | Purpose |
+|--------|---------|
+| `pnpm test` | All **unit** tests (`src/**/*.spec.ts`) |
+| `pnpm test -- path/to/file.spec.ts` | Single unit file or pattern (paths under `src/` or file name substring) |
+| `pnpm test:watch` | Unit tests in watch mode |
+| `pnpm test:cov` | Unit tests with coverage report |
+| `pnpm test:debug` | Unit tests under the Node inspector (see `package.json`) |
+| `pnpm test:e2e` | **E2E** tests (`test/**/*.e2e-spec.ts`). **`pretest:e2e`** starts **`test-db`** and **Redis** via Compose; **`posttest:e2e`** stops/removes **`test-db`**. |
+
+Examples:
+
+```bash
+pnpm test -- documents.service.spec.ts
+pnpm test -- health
+```
+
+## 12. Useful scripts
 
 | Command | Purpose |
 |--------|---------|
@@ -160,10 +199,11 @@ To ship logs into Elasticsearch for Kibana, set **`LOG_TO_FILE=true`** in `.env`
 | `pnpm mock:sales` | Sales mock HTTP API |
 | `pnpm mock:service` | Service mock HTTP API |
 | `pnpm repl:seed` | Seed `api_config` + sample `user_document_config` |
-| `pnpm test` | Unit tests |
+| `pnpm test` | Unit tests (see section **11**) |
+| `pnpm test:e2e` | E2E tests (see section **11**) |
 | `pnpm build` | Production build |
 
-## 12. Troubleshooting
+## 13. Troubleshooting
 
 | Symptom | Things to check |
 |--------|------------------|
@@ -173,7 +213,7 @@ To ship logs into Elasticsearch for Kibana, set **`LOG_TO_FILE=true`** in `.env`
 | **`sources` all ERROR** | Mocks not running; wrong `base_url` in `api_config`; firewall; circuit breaker after many failures—restart BFF or wait. |
 | **Empty `data` but sources OK** | Strong date filters; seed hides some types for user `anonymous` (from `repl:seed`). |
 
-## 13. High-level strategy for guiding AI assistance
+## 14. High-level strategy for guiding AI assistance
 
 This service was built with Cursor using a deliberate prompting approach: anchor on **`system-design.md`**, reuse existing Nest templates (`nestjs-template`, **`cache/`**), and tighten vague asks into concrete constraints (interceptor circuit breaker, **`IMessageQueueService`**, env-driven infra).
 
